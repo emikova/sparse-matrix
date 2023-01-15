@@ -9,6 +9,7 @@ void print_matrix (int m, int n, int mat[m][n]){
     }
     printf ("\n");
   }
+  printf ("\n");
   
 }
 
@@ -100,19 +101,39 @@ void transformToCSR (int m, int n, int mat[m][n], int A[], int IA[], int JA[]){
   }
 }
 
+void sum(int m, int n, int A[m][n], int B[m][n], int C[m][n]){
+  for (int i=0;i<m;i++){
+    for (int j=0;j<n;j++){
+      C[i][j] = A[i][j] + B[i][j];
+    }
+  }
+}
+
+void product(int m, int n, int p, int A[m][n], int B[n][p], int C[m][p]){
+  for (int i=0;i<m;i++){
+    for (int j=0;j<p;j++){
+      int sum=0;
+      for (int brojac=0;brojac<n;brojac++){
+        sum+=A[i][brojac]*B[brojac][j];
+      } 
+      C[i][j]=sum;
+
+    }
+  }
+}
+
 int main(){
-  int mat[3][4];
-  create(3,4,mat, 70 ,80 );
-  print_matrix(3,4,mat);
-  int non_zero_count  = calculate_non_zero_elements(3,4,mat);
-  int A[non_zero_count];
-  int IA[non_zero_count];
-  int JA[non_zero_count];
-  transformToCSR(3,4,mat,A,IA,JA);
-  printf ("\n");
-  print_array (non_zero_count,A);
-  print_array(non_zero_count,IA);
-  print_array(non_zero_count,JA);
+  int mat1[3][4];
+  int mat2[4][5];
+  int rez_mat[3][5];
+  create(3,4,mat1,70,80);
+  create(4,5,mat2,20,50);
+  print_matrix(3,4,mat1);
+  print_matrix(4,5,mat2);
+  product(3,4,5,mat1,mat2,rez_mat);
+  print_matrix(3,5,rez_mat);
+  
+  
 
 
 
