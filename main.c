@@ -122,18 +122,137 @@ void product(int m, int n, int p, int A[m][n], int B[n][p], int C[m][p]){
   }
 }
 
+int first_element(int row1, int column1, int row2, int column2){
+  /*
+    If element1 is the first element - return -1
+    If element2 is the first element - return +1
+    If both of the elements are on the same position - return 0
+  */
+  if (row1 < row2){
+    return -1;
+  }
+  if (row2 < row1){
+    return +1;
+  } 
+  // Elements are in the same row
+  if (column1 < column2){
+    return -1;
+  }
+  if (column2 < column1){
+    return +1;
+  }
+  // Elements have the same position in the matrix
+  return 0;
+
+}
+
+void spars_sum(int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], int IA2[], int JA2[],int A[], int IA[], int JA[]){
+  int index1 = 0;
+  int index2 = 0;
+  int index = 0;
+  
+  while (index1 < n1 && index2 < n2){
+    int result=first_element(IA1[index1], JA1[index1], IA2[index2] , JA2[index2]);
+    if (result == -1){
+      A[index] = A1[index1];
+      IA[index] = IA1[index1];
+      JA[index] = JA1[index1];
+      index++;
+      index1++;
+      continue;
+    }
+    if (result == +1){
+      A[index] = A2[index2];
+      IA[index] = IA2[index2];
+      JA[index] = JA2[index2];
+      index++;
+      index2++;
+      continue;
+    }
+    // result == 0
+    A[index] = A1[index1] + A2[index2];
+    IA[index] = IA1[index1];
+    JA[index] = JA1[index1];
+    index++;
+    index1++;
+    index2++;
+    
+  }
+  while (index1<n1){
+    A[index] = A1[index1];
+    IA[index] = IA1[index1];
+    JA[index] = JA1[index1];
+    index++;
+    index1++;
+  }
+   while (index2<n2){
+    A[index] = A2[index2];
+    IA[index] = IA2[index2];
+    JA[index] = JA2[index2];
+    index++;
+    index2++;
+  }
+
+
+
+}
+
+void transpose_sparse_matrix (int n, int A[], int IA[], int JA[]){
+
+}
+
+void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], int IA2[], int JA2[],int A[], int IA[], int JA[]){
+  transpose_sparse_matrix(n2,A2,IA2,JA2);
+  int index=0;
+  int not_initialized=1;
+  for(int i=0;i<n1;i++){
+    for(int j=0;j<n2;j++){
+      if(JA1[i] == JA2[j]){
+       if (not_initialized == 1){
+        A[index] = A1[index] * A2[index];
+        IA[index] = IA1[index];
+        JA[index] = IA2[index]; 
+        not_initialized = 0;
+        continue;
+       } 
+       else {
+        if(JA1[i] == JA2[j]){
+          if(IA[index] == IA1[i] && JA[index] == IA2[j]){
+             A[index] += A1[index] * A2[index];
+          }
+          else {
+            index++;
+             A[index] = A1[index] * A2[index];
+            IA[index] = IA1[index];
+            JA[index] = IA2[index]; 
+          }
+        }
+        
+
+       }
+      }
+    }
+  }
+}
+
 int main(){
-  int mat1[3][4];
-  int mat2[4][5];
-  int rez_mat[3][5];
-  create(3,4,mat1,70,80);
-  create(4,5,mat2,20,50);
-  print_matrix(3,4,mat1);
-  print_matrix(4,5,mat2);
-  product(3,4,5,mat1,mat2,rez_mat);
-  print_matrix(3,5,rez_mat);
+  int A1[3] = {1, 1, 1};
+  int IA1[3] = {0, 1, 1};
+  int JA1[3] = {1, 0, 2};
   
-  
+  int A2[4] = {1, 1, 1, 1};
+  int IA2[4] = {0, 1, 1, 1};
+  int JA2[4] = {3, 1, 2, 3};
+
+  int A[6] = {0, 0, 0, 0, 0, 0};
+  int IA[6] = {0, 0, 0, 0, 0, 0};
+  int JA[6] = {0, 0, 0, 0, 0, 0};
+
+  spars_sum(3,A1, IA1, JA1, 4, A2, IA2, JA2, A, IA, JA);
+  print_array(6,A);
+  print_array(6,IA);
+  print_array(6,JA);
+ 
 
 
 
