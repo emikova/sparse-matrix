@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 void print_matrix (int m, int n, int mat[m][n]){
   for (int i=0;i<m;i++){
@@ -285,24 +286,48 @@ void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], i
 }
 
 int main(){
-  int A1[3] = {1, 1, 1};
-  int IA1[3] = {0, 0, 1};
-  int JA1[3] = {0, 1, 0};
+  int matrices[10][500][500];
+  int perc_min;
+  int perc_max;
+  int m;
+  clock_t start, end;
+     double cpu_time_used;
+     
+     /*start = clock();
+      
+     end = clock();
+     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;*/
+  printf("hello");
+  int zero_percentages[7]={40, 50, 60, 70, 80, 90, 98};
+  int matrix_dimensions[6]={10, 30, 50, 70, 100, 500};
+  int result_of_sum[500][500];
+  for (int i=0;i<6;i++){
+    for (int j=0;j<6;j++){
+      m=matrix_dimensions[j];
+      perc_min=zero_percentages[i];
+      perc_max=zero_percentages[i+1];
+      //fill matrices with values
+      for(int k=0;k<10;k++){
+        create(m,m,matrices[k],perc_min,perc_max);
+      }
+      start=clock();
+      sum(m,m,matrices[0], matrices[1], result_of_sum);
+      sum(m,m,matrices[2], matrices[3], result_of_sum);
+      sum(m,m,matrices[4], matrices[5], result_of_sum);
+      sum(m,m,matrices[6], matrices[7], result_of_sum);
+      sum(m,m,matrices[8], matrices[9], result_of_sum);
+      end = clock();
+      cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+      printf("Perc_min: %d\n",perc_min);
+      printf("Perc_max: %d\n",perc_max);
+      printf("m: %d\n",m);
+      printf("Time: %.f\n",cpu_time_used);
+      printf ("------------------------------------------\n\n");
 
-  int A2[4] = {1, 1, 1, 1};
-  int IA2[4] = {0, 0, 1, 1};
-  int JA2[4] = {0, 1, 1, 2};
+    }
+  }
 
-  int A[5] = {0, 0, 0, 0, 0};
-  int IA[5] = {0, 0, 0, 0, 0};
-  int JA[5] = {0, 0, 0, 0, 0};
-
-  sparse_multiply(3,A1, IA1, JA1, 4, A2, IA2, JA2, A, IA, JA);
  
-  printf ("\n");
-  print_array(5,A);
-  print_array(5,IA);
-  print_array(5,JA);
 
 
  
