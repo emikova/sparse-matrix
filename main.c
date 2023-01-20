@@ -198,6 +198,55 @@ void spars_sum(int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], int IA2[
 }
 
 void transpose_sparse_matrix (int n, int A[], int IA[], int JA[]){
+  int result;
+  int tmpA, tmpI, tmpJ;
+  //print_array(5,A);
+  //print_array(5,IA);
+  //print_array(5,JA);
+  //printf ("\n");
+  for(int i=0; i<n; i++){
+    int index_min=i;
+    for(int j=i; j<n; j++){
+      if(-1 == first_element(JA[j], IA[j],JA[index_min], IA[index_min] )) {
+        index_min=j;
+      }
+    }
+    tmpA=A[i];
+    tmpI=IA[i];
+    tmpJ=JA[i];
+
+      
+    //printf ("%d ",A[index_min]);
+    A[i]=A[index_min];
+    //printf ("%d, ",A[i]);
+
+    //printf("%d ",IA[index_min]);
+    IA[i]=IA[index_min];
+    //printf("%d, ",IA[i]);
+
+    //printf ("%d ",JA[index_min]);
+    JA[i]=JA[index_min];
+    //printf ("%d      ",JA[i]); 
+    //printf ("%d\n",index_min);
+    //printf("----------------------\n");
+  
+    
+
+    A[index_min]=tmpA;
+    IA[index_min]=tmpI;
+    JA[index_min]=tmpJ;
+
+    tmpA=IA[i];
+    IA[i]=JA[i];
+    JA[i]=tmpA;
+
+    //print_array(5,A);
+    //print_array(5,IA);
+    //print_array(5,JA);
+    //printf ("\n");
+
+    
+  }
 
 }
 
@@ -209,24 +258,24 @@ void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], i
     for(int j=0;j<n2;j++){
       if(JA1[i] == JA2[j]){
        if (not_initialized == 1){
-        A[index] = A1[index] * A2[index];
-        IA[index] = IA1[index];
-        JA[index] = IA2[index]; 
+        A[index] = A1[i] * A2[j];
+        IA[index] = IA1[i];
+        JA[index] = IA2[j]; 
         not_initialized = 0;
         continue;
        } 
-       else {
-        if(JA1[i] == JA2[j]){
-          if(IA[index] == IA1[i] && JA[index] == IA2[j]){
-             A[index] += A1[index] * A2[index];
-          }
-          else {
-            index++;
-             A[index] = A1[index] * A2[index];
-            IA[index] = IA1[index];
-            JA[index] = IA2[index]; 
-          }
-        }
+      else {
+      
+      if(IA[index] == IA1[i] && JA[index] == IA2[j]){
+          A[index] += A1[i] * A2[j];
+      }
+      else {
+        index++;
+          A[index] = A1[i] * A2[j];
+        IA[index] = IA1[i];
+        JA[index] = IA2[j]; 
+      }
+        
         
 
        }
@@ -237,21 +286,25 @@ void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], i
 
 int main(){
   int A1[3] = {1, 1, 1};
-  int IA1[3] = {0, 1, 1};
-  int JA1[3] = {1, 0, 2};
-  
+  int IA1[3] = {0, 0, 1};
+  int JA1[3] = {0, 1, 0};
+
   int A2[4] = {1, 1, 1, 1};
-  int IA2[4] = {0, 1, 1, 1};
-  int JA2[4] = {3, 1, 2, 3};
+  int IA2[4] = {0, 0, 1, 1};
+  int JA2[4] = {0, 1, 1, 2};
 
-  int A[6] = {0, 0, 0, 0, 0, 0};
-  int IA[6] = {0, 0, 0, 0, 0, 0};
-  int JA[6] = {0, 0, 0, 0, 0, 0};
+  int A[5] = {0, 0, 0, 0, 0};
+  int IA[5] = {0, 0, 0, 0, 0};
+  int JA[5] = {0, 0, 0, 0, 0};
 
-  spars_sum(3,A1, IA1, JA1, 4, A2, IA2, JA2, A, IA, JA);
-  print_array(6,A);
-  print_array(6,IA);
-  print_array(6,JA);
+  sparse_multiply(3,A1, IA1, JA1, 4, A2, IA2, JA2, A, IA, JA);
+ 
+  printf ("\n");
+  print_array(5,A);
+  print_array(5,IA);
+  print_array(5,JA);
+
+
  
 
 
