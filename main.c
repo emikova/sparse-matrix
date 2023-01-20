@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <sys/time.h>
 
 void print_matrix (int m, int n, int mat[m][n]){
   for (int i=0;i<m;i++){
@@ -285,54 +286,91 @@ void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], i
   }
 }
 
-int main(){
-  int matrices[10][500][500];
+void normal_test(){
+  int matrix_number=50;
+  int matrices[matrix_number][100][100];
   int perc_min;
   int perc_max;
   int m;
-  clock_t start, end;
-     double cpu_time_used;
-     
-     /*start = clock();
-      
-     end = clock();
-     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;*/
-  printf("hello");
+  struct timeval start, end;
+
   int zero_percentages[7]={40, 50, 60, 70, 80, 90, 98};
-  int matrix_dimensions[6]={10, 30, 50, 70, 100, 500};
-  int result_of_sum[500][500];
+  int matrix_dimensions[5]={10, 30, 50, 70, 100};
+  int result_of_sum[100][100];
   for (int i=0;i<6;i++){
-    for (int j=0;j<6;j++){
+    for (int j=0;j<5;j++){
       m=matrix_dimensions[j];
       perc_min=zero_percentages[i];
       perc_max=zero_percentages[i+1];
       //fill matrices with values
-      for(int k=0;k<10;k++){
+      for(int k=0;k<matrix_number;k++){
         create(m,m,matrices[k],perc_min,perc_max);
       }
-      start=clock();
-      sum(m,m,matrices[0], matrices[1], result_of_sum);
-      sum(m,m,matrices[2], matrices[3], result_of_sum);
-      sum(m,m,matrices[4], matrices[5], result_of_sum);
-      sum(m,m,matrices[6], matrices[7], result_of_sum);
-      sum(m,m,matrices[8], matrices[9], result_of_sum);
-      end = clock();
-      cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+      // SUM
+      gettimeofday(&start, NULL);
+      for(int i=0; i<matrix_number;i++){
+        for(int j=i;j<matrix_number;j++){
+          sum(m,m,matrices[i], matrices[j], result_of_sum);
+        }
+      }
+      gettimeofday(&end, NULL);
+      long elapsed_time_sum = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+      
+      // PRODUCT
+      gettimeofday(&start, NULL);
+      for(int i=0; i<matrix_number;i++){
+        for(int j=i;j<matrix_number;j++){
+          product(m,m,m, matrices[i], matrices[j], result_of_sum);
+        }
+      }
+      
+      gettimeofday(&end, NULL);
+      long elapsed_time_multiply = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
       printf("Perc_min: %d\n",perc_min);
       printf("Perc_max: %d\n",perc_max);
       printf("m: %d\n",m);
-      printf("Time: %.f\n",cpu_time_used);
+      printf("Elapsed time sum: %ld ms\n", elapsed_time_sum);
+      printf("Elapsed time multiply: %ld ms\n", elapsed_time_multiply);
+
       printf ("------------------------------------------\n\n");
 
     }
   }
 
- 
+}
+
+void sparse_test(){
+  int matrix_number=10;
+  int sparse_matrices[matrix_number][3][10000];
+  int perc_min;
+  int perc_max;
+  int m;
+  struct timeval start, end;
+
+  int zero_percentages[7]={40, 50, 60, 70, 80, 90, 98};
+  int matrix_dimensions[5]={10, 30, 50, 70, 100};
+  int result_of_sum[100][100];
+  for (int i=0;i<6;i++){
+    for (int j=0;j<5;j++){
+      m=matrix_dimensions[j];
+      perc_min=zero_percentages[i];
+      perc_max=zero_percentages[i+1];
+      //fill matrices with values
+
+      printf("Perc_min: %d\n",perc_min);
+      printf("Perc_max: %d\n",perc_max);
+      printf("m: %d\n",m);
 
 
- 
+      printf ("------------------------------------------\n\n");
 
+    }
+  }
+}
 
+int main(){
+  normal_test();
 
 
 }
