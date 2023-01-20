@@ -89,7 +89,7 @@ int calculate_non_zero_elements ( int m, int n, int mat[m][n]){
   return sum;
 } 
 
-void transformToCSR (int m, int n, int mat[m][n], int A[], int IA[], int JA[]){
+int transformToCSR (int m, int n, int mat[m][n], int A[], int IA[], int JA[]){
   int index=0;
   for (int i=0;i<m;i++){
     for (int j=0;j<n;j++){
@@ -101,6 +101,7 @@ void transformToCSR (int m, int n, int mat[m][n], int A[], int IA[], int JA[]){
       }
     }
   }
+  return index;
 }
 
 void sum(int m, int n, int A[m][n], int B[m][n], int C[m][n]){
@@ -288,7 +289,14 @@ void sparse_multiply (int n1,int A1[], int IA1[], int JA1[], int n2, int A2[], i
 
 void normal_test(){
   int matrix_number=50;
-  int matrices[matrix_number][100][100];
+  int max_matrix_dimension=100;
+  int matrix1[max_matrix_dimension][max_matrix_dimension];
+  int matrix2 [max_matrix_dimension][max_matrix_dimension];
+
+  int sparse_matrix1[3][max_matrix_dimension*max_matrix_dimension];
+  int sparse_matrix2[3][max_matrix_dimension*max_matrix_dimension];
+  int sparse_matrix_result[3][max_matrix_dimension*max_matrix_dimension];
+
   int perc_min;
   int perc_max;
   int m;
@@ -296,43 +304,64 @@ void normal_test(){
 
   int zero_percentages[7]={40, 50, 60, 70, 80, 90, 98};
   int matrix_dimensions[5]={10, 30, 50, 70, 100};
-  int result_of_sum[100][100];
+  int result_of_sum[max_matrix_dimension][max_matrix_dimension];
   for (int i=0;i<6;i++){
     for (int j=0;j<5;j++){
       m=matrix_dimensions[j];
       perc_min=zero_percentages[i];
       perc_max=zero_percentages[i+1];
-      //fill matrices with values
-      for(int k=0;k<matrix_number;k++){
-        create(m,m,matrices[k],perc_min,perc_max);
-      }
 
-      // SUM
-      gettimeofday(&start, NULL);
+      long elapsed_time_sum = 0.0;
+      long elapsed_time_product = 0.0;
+      long elapsed_time_sparse_sum = 0.0;
+      long elapsed_time_sparse_product = 0.0;
       for(int i=0; i<matrix_number;i++){
         for(int j=i;j<matrix_number;j++){
-          sum(m,m,matrices[i], matrices[j], result_of_sum);
+          create(m,m,matrix1,perc_min,perc_max);
+          create(m,m,matrix2,perc_min,perc_max);
+          int sparse1_lenght;
+          int sparse2_lenght;
+          sparse1_lenght = transformToCSR(m,m,matrix1,sparse_matrix1[0],sparse_matrix1[1],sparse_matrix1[2]);
+          sparse2_lenght = transformToCSR(m,m,matrix2,sparse_matrix2[0],sparse_matrix2[1],sparse_matrix2[2]);
+
+          // SUM
+          gettimeofday(&start, NULL);
+          sum(m,m,matrix1, matrix2, result_of_sum);
+          gettimeofday(&end, NULL);
+          elapsed_time_sum += (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+
+          // PRODUCT
+          gettimeofday(&start, NULL);
+          product(m,m,m,matrix1, matrix2, result_of_sum);
+          gettimeofday(&end, NULL);
+          elapsed_time_product += (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+
+           // SPARSE-SUM
+          gettimeofday(&start, NULL);
+          spars_sum(sparse1_lenght,sparse_matrix1[0],sparse_matrix1[1],sparse_matrix1[2],sparse2_lenght,sparse_matrix2[0],sparse_matrix2[1],sparse_matrix2[2],sparse_matrix_result[0],sparse_matrix_result[1],sparse_matrix_result[2]);
+          gettimeofday(&end, NULL);
+          elapsed_time_sparse_sum += (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+
+          // SPARSE PRODUCT
+          gettimeofday(&start, NULL);
+          sparse_multiply(sparse1_lenght,sparse_matrix1[0],sparse_matrix1[1],sparse_matrix1[2],sparse2_lenght,sparse_matrix2[0],sparse_matrix2[1],sparse_matrix2[2],sparse_matrix_result[0],sparse_matrix_result[1],sparse_matrix_result[2]);
+          gettimeofday(&end, NULL);
+          elapsed_time_sparse_product += (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+          
+          
         }
       }
-      gettimeofday(&end, NULL);
-      long elapsed_time_sum = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
       
-      // PRODUCT
-      gettimeofday(&start, NULL);
-      for(int i=0; i<matrix_number;i++){
-        for(int j=i;j<matrix_number;j++){
-          product(m,m,m, matrices[i], matrices[j], result_of_sum);
-        }
-      }
       
-      gettimeofday(&end, NULL);
-      long elapsed_time_multiply = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+      
+    
       printf("Perc_min: %d\n",perc_min);
       printf("Perc_max: %d\n",perc_max);
       printf("m: %d\n",m);
       printf("Elapsed time sum: %ld ms\n", elapsed_time_sum);
-      printf("Elapsed time multiply: %ld ms\n", elapsed_time_multiply);
-
+      printf ("Elapsed time product: %ld ms\n", elapsed_time_product);
+      printf("Elapsed time sparse sum: %ld ms\n", elapsed_time_sparse_sum);
+       printf ("Elapsed time sparse product: %ld ms\n", elapsed_time_sparse_product);
       printf ("------------------------------------------\n\n");
 
     }
